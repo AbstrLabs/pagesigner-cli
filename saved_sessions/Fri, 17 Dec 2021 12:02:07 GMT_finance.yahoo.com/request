@@ -1,0 +1,3 @@
+GET /quote/GOOG HTTP/1.1
+Host: finance.yahoo.com
+
