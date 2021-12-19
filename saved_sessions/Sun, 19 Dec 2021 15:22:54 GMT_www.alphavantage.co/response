@@ -1,0 +1,31 @@
+HTTP/1.1 200 OK
+Date: Sun, 19 Dec 2021 15:22:54 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+Vary: Cookie
+Allow: GET, HEAD, OPTIONS
+X-Frame-Options: SAMEORIGIN
+Via: 1.1 vegur
+CF-Cache-Status: DYNAMIC
+Expect-CT: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+Server: cloudflare
+CF-RAY: 6c01a1078b280ce7-LAX
+
+180
+{
+    "Global Quote": {
+        "01. symbol": "IBM",
+        "02. open": "125.8700",
+        "03. high": "128.6400",
+        "04. low": "125.2093",
+        "05. price": "127.4000",
+        "06. volume": "10382693",
+        "07. latest trading day": "2021-12-17",
+        "08. previous close": "125.9300",
+        "09. change": "1.4700",
+        "10. change percent": "1.1673%"
+    }
+}
+0
+
