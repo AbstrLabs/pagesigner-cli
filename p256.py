@@ -102,7 +102,7 @@ def point_add(point1, point2):
     else:
         # This is the case point1 != point2.
         m = (y1 - y2) * inverse_mod(x1 - x2, curve.p)
-
+    # print("!!!",m*m)
     x3 = m * m - x1 - x2
     y3 = y1 + m * (x3 - x1)
     result = (x3 % curve.p, -y3 % curve.p)
@@ -117,10 +117,12 @@ def scalar_mult(k, point):
     assert is_on_curve(point)
 
     if k % curve.n == 0 or point is None:
+        print('noooo')
         return None
 
     if k < 0:
         # k * point = -k * (-point)
+        print('no')
         return scalar_mult(-k, point_neg(point))
 
     result = None
@@ -139,6 +141,37 @@ def scalar_mult(k, point):
     assert is_on_curve(result)
 
     return result
+
+def scalar_mult2(k, point):
+    table = [[0, 0] for i in range(256)]
+    table[0][0] = point[0]
+    table[0][1] = point[1]
+    for i in range(1,256):
+        pt = point_add((table[i-1][0], table[i-1][1]), (table[i-1][0], table[i-1][1]))
+        table[i][0] = pt[0]
+        table[i][1] = pt[1]
+        print(i, hex(table[i][0]), hex(table[i][1]))
+    kbits = bin(k)[2:]
+    if len(kbits) < 256:
+        kbits = '0'*(256-len(kbits)) + kbits
+    kbits = list(reversed(kbits))
+    # print(kbits) 
+    init = False
+    p_x, p_y = None, None
+    for i in range(256):
+        if kbits[i] == '1':
+            if init:
+                r = point_add((p_x, p_y), (table[i][0], table[i][1]))
+                p_x, p_y = r
+            else:
+                init = True
+                p_x, p_y = table[i][0], table[i][1]
+            print('p_x', i, hex(p_x), 'p_y', hex(p_y))
+    print(hex(p_x))
+    print(hex(p_y))
+    return p_x,p_y
+
+
 
 def point_neg(point):
     """Returns -point."""

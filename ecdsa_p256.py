@@ -3,7 +3,7 @@ import random
 import hashlib
 import libnum
 
-from p256 import curve,scalar_mult,point_add
+from p256 import curve,scalar_mult,point_add,scalar_mult2
 
 msg="Hello"
 
@@ -37,11 +37,19 @@ print(hex(s))
 
 def check(QA, r, s, h):
     inv_s = libnum.invmod(s,curve.n)
+    print('check these')
+    print(curve.n)
+    print(s)
+    print(inv_s)
     c = inv_s
     u1=(h*c) % curve.n
     u2=(r*c) % curve.n
+    print(u1)
+    print(u2)
     P = point_add(scalar_mult(u1,curve.g), scalar_mult(u2,QA))
-
+    print('--------')
+    print(scalar_mult(u1,curve.g))
+    print(scalar_mult2(u1, curve.g))
     res = P[0] % curve.n
     print (f"\nResult r={res}")
 
