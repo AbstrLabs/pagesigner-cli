@@ -49,6 +49,7 @@ def check(QA, r, s, h):
     P = point_add(scalar_mult(u1,curve.g), scalar_mult(u2,QA))
     print('--------')
     print(scalar_mult(u1,curve.g))
+    # scalar_mult2 is same as impl in xjsnark. and the result matches scalar_mult
     print(scalar_mult2(u1, curve.g))
     res = P[0] % curve.n
     print (f"\nResult r={res}")
