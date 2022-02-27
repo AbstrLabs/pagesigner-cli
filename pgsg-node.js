@@ -110,12 +110,19 @@ async function createNewSession(host, request, response, date, pgsg, is_imported
     return sessDir
 }
 
+async function createNotaryJson(path, pgsg){
+    const jsonPath = Path.join(path, "notary.json");
+    fs.mkdirSync(path, { recursive: true });
+    fs.writeFileSync(jsonPath, Buffer.from(JSON.stringify(pgsg)))
+    return jsonPath
+}
+
 
 function showUsage(){
     console.log("Usage: ./pgsg-node.js <command> [options] \r\n")
     console.log("where <command> is one of notarize, verify\r\n")
     console.log("Examples:\r\n")
-    console.log("./pgsg-node.js notarize example.com --headers headers.txt")
+    console.log("./pgsg-node.js notarize example.com --headers headers.txt output")
     console.log("Notarize example.com using HTTP headers from headers.txt\r\n")
     console.log("./pgsg-node.js verify imported.pgsg")
     console.log("Verify a Pagesigner session from imported.pgsg. This will create a session directory with the decrypted cleartext and a copy of the pgsg file.\r\n")
@@ -162,19 +169,20 @@ async function setupNotary(){
 async function main (){
     const argv = process.argv
     if (argv[2] === 'notarize') {
-        if (argv.length !== 6 || (argv.length == 6 && argv[4] !== '--headers')){
+        if (argv.length !== 7 || (argv.length == 7 && argv[4] !== '--headers')){
             showUsage();
         }
+        const outputPath = argv[6];
 
         const cacheDir = Path.join(__dirname, 'cache')
-        if (! fs.existsSync(cacheDir)) {fs.mkdirSync(cacheDir)};   
+        if (! fs.existsSync(cacheDir)) {fs.mkdirSync(cacheDir)};
         const psPath = Path.join(cacheDir, 'parsedCircuits')
         const gbPath = Path.join(cacheDir, 'gatesBlob')
 
         let circuits
         if (fs.existsSync(psPath)) {
             // load cached serialized circuits
-            circuits = JSON.parse(fs.readFileSync(psPath))            
+            circuits = JSON.parse(fs.readFileSync(psPath))
         } else {
             // run first time setup
             circuits = await new FirstTimeSetup().start();
@@ -186,14 +194,14 @@ async function main (){
         for (const [k, v] of Object.entries(circuits)) {
             circuits[k]['gatesBlob'] = b64decode(circuits[k]['gatesBlob'])
         }
-      
+
         // prepare root store certificates
         const rootStorePath = Path.join(__dirname, 'pagesigner', 'core', 'third-party', 'certs.txt')
         await parse_certs(fs.readFileSync(rootStorePath).toString());
 
         const server = argv[3]
-        const headersfile = Path.join(__dirname, argv[5])
-       
+        const headersfile = argv[5]
+
         // split into lines keeping the delimiter at the end of each line
         const lines = fs.readFileSync(headersfile).toString().split(/(?<=\r\n|\n)/);
         let headers = ''
@@ -208,7 +216,7 @@ async function main (){
             }
             else { // replace whatever delimiter is at the end with /r/n
                 headers += lines[i].split(/\r\n|\n/)[0]+ '\r\n'
-            } 
+            }
         }
         if (! blankLineWasFound){
             headers += '\r\n'
@@ -227,8 +235,9 @@ async function main (){
         }
         const [host, request, response, date] = await m.verifyPgsgV6(obj);
         const serializedPgsg = m.serializePgsg(obj);
-        const sessDir = await createNewSession(host, request, response, date, serializedPgsg)
-        console.log('Session was saved in ', sessDir)
+        // const sessDir = await createNewSession(host, request, response, date, serializedPgsg)
+        const jsonPath = await createNotaryJson(outputPath, serializedPgsg);
+        console.log('NotaryJson was saved in ', jsonPath)
         process.exit(0)
     }  
 
