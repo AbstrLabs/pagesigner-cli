@@ -1,4 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --experimental-wasm-simd
+
+const ver = process.versions.node.split('.');
+if (Number(ver[0]) < 16 || (Number(ver[0]) == 16 && Number(ver[1]) < 5)){
+    console.log("Error: the minimum supported node.js version is 16.5.0");
+    console.log("Detected version: ", process.versions.node);
+    process.exit(1);
+}
 
 import {assert, b64decode, b64encode} from './pagesigner/core/utils.js'
 import {parse_certs} from './pagesigner/core/verifychain.js';
@@ -24,7 +31,7 @@ global.CBOR  = require('cbor-js')
 import * as COSE from './pagesigner/core/third-party/coseverify.js'
 global.COSE = COSE
 // replace browser's fetch
-import fetch from 'node-fetch'
+import {fetch} from 'undici'
 global.fetch = fetch
 const http = require('http');
 // keepAliveAgent tells fetch to reuse the same source port 
@@ -78,7 +85,7 @@ class SocketNode extends Socket{
 }
 global.SocketNode = SocketNode
 
-// a drop-in replacement for HTML WebWorker
+// a drop-in replacement for WebWorker
 const { Worker, parentPort } = require('worker_threads');
 class mWorker extends Worker{
     constructor(url){

@@ -1,4 +1,4 @@
-pgsg-node.js allows you to run PageSigner with nodejs >= v.15.0
+pgsg-node.js allows you to run PageSigner with nodejs >= v 16.5.0
 
 Clone this repo with:
 git clone --recurse-submodules https://github.com/tlsnotary/pagesigner-cli
